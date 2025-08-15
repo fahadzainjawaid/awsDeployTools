@@ -1,0 +1,40 @@
+{
+  "name": "lightsail-tools",
+  "version": "1.0.4",
+  "private": false,
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "lightsailTools": "./dist/lightsailTools.cjs"
+  },
+  "scripts": {
+    "test": "node ../test/test.js",
+    "compile": "node build.js && chmod +x ./dist/*.cjs",
+    "setup": "sudo npm link",
+    "preinstall": "echo Running preinstall script"
+  },
+  "dependencies": {
+    "@aws-sdk/client-iam": "^3.758.0",
+    "@aws-sdk/client-secrets-manager": "^3.0.0",
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.5",
+    "ini": "^2.0.0",
+    "inquirer": "^8.2.6",
+    "toml": "^3.0.0",
+    "zx": "^7.2.3"
+  },
+  "devDependencies": {
+    "esbuild": "^0.14.0"
+  },
+  "pkg": {
+    "assets": [
+      "dist/*.bundle.js",
+      "src/*.mjs",
+      "lib/*.mjs"
+    ],
+    "scripts": [
+      "dist/bundle.js",
+      "require.js"
+    ]
+  }
+}
