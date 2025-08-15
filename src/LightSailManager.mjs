@@ -23,20 +23,40 @@ export class LightSailManager {
   }
   
 
+
+  /** * Generate a certificate name based on the domain.
+   * Replaces non-alphanumeric characters with hy
+   * phens and converts to lowercase.
+   * @param {string} domainName
+   * @return {string} Cleaned certificate name
+   * */
+  certNameFromDomain(domainName) {
+    // Generate a certificate name based on the domain. Remove 'dot' and rplace with hyphens.
+     return domainName.replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase() + '-cert';
+  }
+
+
+  async certExists(certName) {
+    let certExists = false;
+    try {
+      const res = await $`aws lightsail get-certificates --region ${this.region} --query "certificates[?certificateName=='${certName}']" --output text`;
+      certExists = res.stdout.trim() !== '';
+      return certExists;
+    } catch {
+      return certExists; 
+    }
+  }
+
   /**
    * Attach a certificate to a Lightsail container. Create if it doesn't exist.
    */
   async attachCert(containerName, domainName, certName) {
-  certName = certName || `${containerName}-cert`;
+  certName = certName || this.certNameFromDomain(domainName);
+
+  this.certName = certName;
 
   // 1️⃣ Check if cert exists or is pending
-  let certExists = false;
-  try {
-      const res = await $`aws lightsail get-certificates --region ${this.region} --query "certificates[?certificateName=='${certName}']" --output text`;
-      certExists = res.stdout.trim() !== '';
-  } catch {
-      certExists = false;
-  }
+  let certExists = await this.certExists(certName);
 
   if (!certExists) {
       console.log(`Certificate '${certName}' not found. Creating...`);
@@ -175,11 +195,6 @@ export class LightSailManager {
         isAlias: true
       };
 
-
-      //await $`aws lightsail create-domain-entry \
-      //  --region ${this.defaultDNSRegion} \
-      // --domain-name ${dnsZoneName} \
-      //  --domain-entry ${JSON.stringify(newEntry)}`;
     }
 
 
